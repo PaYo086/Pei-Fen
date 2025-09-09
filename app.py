@@ -30,7 +30,7 @@ app = Flask(__name__)
 
 # line
 configuration = Configuration(access_token=CHANNEL_ACCESS_TOKEN)
-handler = WebhookHandler(CHANNEL_SECRET)
+line_handler = WebhookHandler(CHANNEL_SECRET)
 
 # dropbox
 dbx = dropbox.Dropbox(app_key=DROPBOX_APP_KEY, app_secret=DROPBOX_APP_SECRET, oauth2_refresh_token=DROPBOX_REFRESH_TOKEN)
@@ -48,14 +48,14 @@ def callback():
 
     # handle webhook body
     try:
-        handler.handle(body, signature)
+        line_handler.handle(body, signature)
     except InvalidSignatureError:
         app.logger.info("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
 
     return 'OK'
 
-@handler.add(MessageEvent)
+@line_handler.add(MessageEvent)
 def handle_message(event):
     message_type = event.message.type
     message_id = event.message.id
@@ -146,7 +146,7 @@ def file_exists(file_name, dbx=dbx):
             return False
         raise
 
-# @handler.add(JoinEvent)
+# @line_handler.add(JoinEvent)
 # def handle_join(event):
 #     if event.source.type == "group":
 #         group_id = event.source.group_id
